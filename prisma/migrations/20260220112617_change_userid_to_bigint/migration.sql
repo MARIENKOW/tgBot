@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "access" ALTER COLUMN "userId" SET DATA TYPE BIGINT;
