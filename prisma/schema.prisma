@@ -16,6 +16,7 @@ datasource db {
 model Access {
   id          Int       @id @default(autoincrement())
   userId      String    @unique  // Telegram user_id (bigint!)
+  username    String?
   accessUntil Int    // Unix timestamp
   createdAt   DateTime  @default(now())
   

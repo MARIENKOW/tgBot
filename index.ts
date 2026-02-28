@@ -98,7 +98,7 @@ async function price(ctx: BotContext) {
     );
 }
 
-async function grantAccess(userId: number, period: number) {
+async function grantAccess(userId: number, period: number, username?: string) {
     const now = Math.floor(Date.now() / 1000);
     const newUntil = now + period;
 
@@ -116,7 +116,7 @@ async function grantAccess(userId: number, period: number) {
     await prisma.access.upsert({
         where: { userId: String(userId) },
         update: { accessUntil },
-        create: { userId: String(userId), accessUntil },
+        create: { userId: String(userId), accessUntil, username },
     });
 
     const expire_date = now + 3600;
@@ -166,7 +166,9 @@ bot.on("message:successful_payment", async (ctx: BotContext) => {
         days: number;
         period: number;
     };
-    await grantAccess(ctx.from!.id, payload.period);
+
+
+    await grantAccess(ctx.from!.id, payload.period, ctx.from!.username);
 });
 
 bot.on("callback_query:data", async (ctx, next) => {
