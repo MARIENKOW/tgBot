@@ -1,45 +1,49 @@
-import { CurrencyType } from "crypto-bot-api";
+// payment_handlers/cryptoBuy.ts
+import { InlineKeyboard } from "grammy";
 import { BotContext } from "../types/session";
-import CryptoBotAPI from "crypto-bot-api";
+import { PAY_CONFIG_ARRAY } from "../config";
+import { createInvoice } from "../cryptobot";
 
-const cryptoPay = new CryptoBotAPI(process.env.CRYPTOBOT_TOKEN as string);
+export async function cryptoBuy(ctx: BotContext, days: number): Promise<void> {
+    const payConfig = PAY_CONFIG_ARRAY.find((el) => el.days === days);
+    if (!payConfig) {
+        await ctx.reply("❌ Тариф не найден.");
+        return;
+    }
 
-async function buyCrypto(ctx: BotContext, days: number, amount: string) {
     const userId = ctx.from!.id;
-    const period = days * 86400;
+    const msg = await ctx.reply("⏳ Создаём счёт...");
 
     try {
-        const invoice = await cryptoPay.createInvoice({
-            currencyType: CurrencyType.Fiat, // считаем в USD, CryptoBot сам конвертирует
-            fiat: "USD",
-            amount,
-            acceptedAssets: ["USDT", "TON", "BTC", "ETH", "LTC"],
-            description: `Доступ в канал на ${days} дней`,
-            payload: JSON.stringify({ userId, days, period }),
-            expiresIn: 3600,
+        const invoice = await createInvoice({
+            userId,
+            days,
+            amountUsd: payConfig.priceUsd,
+            description: `Доступ на ${days} дней`,
         });
 
-        await ctx.reply(
-            `💎 <b>Оплата криптой</b>\n\n` +
-                `📦 Тариф: ${days} дней\n` +
-                `💵 Сумма: $${amount}\n\n` +
-                `👇 Нажми кнопку для оплаты:`,
-            {
-                parse_mode: "HTML",
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            {
-                                text: `💳 Оплатить $${amount}`,
-                                url: "invoice.payUrl",
-                            },
-                        ],
-                    ],
-                },
-            },
+        const keyboard = new InlineKeyboard().url(
+            "💳 Оплатить в CryptoBot",
+            invoice.pay_url,
+        );
+
+        await ctx.api.editMessageText(
+            ctx.chat!.id,
+            msg.message_id,
+            `💎 <b>Оплата через CryptoBot</b>\n\n` +
+                `📦 Тариф: ${payConfig.label}\n` +
+                `💵 Сумма: $${payConfig.priceUsd}\n\n` +
+                `👆 Нажми кнопку и оплати.\n` +
+                `✅ Доступ откроется <b>автоматически</b> после оплаты.\n` +
+                `⏰ Счёт действует 1 час.`,
+            { parse_mode: "HTML", reply_markup: keyboard },
         );
     } catch (err) {
-        console.error("Ошибка создания крипто-инвойса:", err);
-        await ctx.reply("❌ Ошибка создания платежа. Попробуй позже.");
+        console.error("CryptoBot createInvoice error:", err);
+        await ctx.api.editMessageText(
+            ctx.chat!.id,
+            msg.message_id,
+            "❌ Ошибка создания счёта. Попробуй позже.",
+        );
     }
 }

@@ -13,8 +13,10 @@ import { PrismaClient } from "./generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { isCommandType } from "./helpers";
 import { PAY_CONFIG_ARRAY } from "./config";
+import { startWebhookServer } from "./webhook";
 
 dotenv.config();
+
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 
@@ -167,7 +169,6 @@ bot.on("message:successful_payment", async (ctx: BotContext) => {
         period: number;
     };
 
-
     await grantAccess(ctx.from!.id, payload.period, ctx.from!.username);
 });
 
@@ -281,3 +282,6 @@ process.on("SIGINT", async () => {
     console.log("\n🛑 Стоп");
     process.exit(0);
 });
+
+const WEBHOOK_PORT = Number(process.env.WEBHOOK_PORT ?? 3000);
+startWebhookServer(WEBHOOK_PORT, grantAccess);
