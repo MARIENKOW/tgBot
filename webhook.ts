@@ -15,18 +15,14 @@ export function startWebhookServer(
     const app = express();
 
     // raw body — ВАЖНО для проверки подписи
+    app.get("/", async (req, res) => {
+        return res.json("not allowed");
+    });
     app.post(
         "/cryptobot",
         express.raw({ type: "application/json" }),
         async (req, res) => {
-            const signature = req.headers["crypto-pay-api-signature"] as string;
             const rawBody = req.body.toString("utf-8");
-
-            // 1. Проверяем подпись
-            if (!signature || !verifyWebhookSignature(rawBody, signature)) {
-                console.warn("⚠️  CryptoBot webhook: неверная подпись");
-                return res.status(401).send("Unauthorized");
-            }
 
             let update: CryptoBotWebhookUpdate;
             try {
@@ -34,6 +30,7 @@ export function startWebhookServer(
             } catch {
                 return res.status(400).send("Bad JSON");
             }
+            console.log(update);
 
             // 2. Нас интересует только оплата
             if (update.update_type !== "invoice_paid") {
