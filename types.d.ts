@@ -13,6 +13,5 @@ export type Payments = {
 export type PayConfig = {
     days: number;
     label: string;
-    priceUsd: number; // ← цена в USD для CryptoBot
     payments: Payments[];
 };
