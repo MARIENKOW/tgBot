@@ -69,7 +69,9 @@ export function startWebhookServer(
                 return res.status(200).send("OK");
             }
 
-            console.log(`💎 CryptoBot оплата: userId=${userId}, days=${days}`);
+            invoice.invoice_id
+
+            console.log(`💎 CryptoBot оплата: userId=${userId}, days=${days}, invoice_id=${invoice.invoice_id}`);
 
             // 4. Выдаём доступ
             try {
