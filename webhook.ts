@@ -14,7 +14,6 @@ export function startWebhookServer(
 ): void {
     const app = express();
 
-    // raw body — ВАЖНО для проверки подписи
     app.get("/", async (req, res) => {
         return res.json("not allowed");
     });
@@ -22,7 +21,13 @@ export function startWebhookServer(
         "/cryptobot",
         express.raw({ type: "application/json" }),
         async (req, res) => {
+            const signature = req.headers["crypto-pay-api-signature"] as string;
             const rawBody = req.body.toString("utf-8");
+            // 1. Проверяем подпись
+            if (!signature || !verifyWebhookSignature(rawBody, signature)) {
+                console.warn("⚠️  CryptoBot webhook: неверная подпись");
+                return res.status(401).send("Unauthorized");
+            }
 
             let update: CryptoBotWebhookUpdate;
             try {
@@ -30,7 +35,6 @@ export function startWebhookServer(
             } catch {
                 return res.status(400).send("Bad JSON");
             }
-            console.log(update);
 
             // 2. Нас интересует только оплата
             if (update.update_type !== "invoice_paid") {
@@ -52,6 +56,13 @@ export function startWebhookServer(
                 return res.status(200).send("OK");
             }
 
+            if (invoice.status !== "paid") {
+                console.warn(
+                    `Unexpected status in invoice_paid: ${invoice.status}`,
+                );
+                return res.status(200).send("OK");
+            }
+
             const { userId, days, username } = payloadData;
             if (!userId || !days) {
                 console.error("CryptoBot: нет userId/days в payload");
@@ -62,7 +73,7 @@ export function startWebhookServer(
 
             // 4. Выдаём доступ
             try {
-                await grantAccess(userId, days * 86400, username);
+                await grantAccess(userId, Number(days) * 86400, username);
                 console.log(`✅ Доступ выдан: userId=${userId}`);
             } catch (err) {
                 console.error("grantAccess error:", err);
