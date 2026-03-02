@@ -18,7 +18,7 @@ export function startWebhookServer(
         return res.json("not allowed");
     });
     app.post(
-        "/cryptobot",
+        "/",
         express.raw({ type: "application/json" }),
         async (req, res) => {
             const signature = req.headers["crypto-pay-api-signature"] as string;
