@@ -4,7 +4,11 @@ import { BotContext } from "../types/session";
 import { PAY_CONFIG_ARRAY } from "../config";
 import { createInvoice } from "../cryptobot";
 
-export async function cryptoBuy(ctx: BotContext, days: number,usd:number): Promise<void> {
+export async function cryptoBuy(
+    ctx: BotContext,
+    days: number,
+    usd: number,
+): Promise<void> {
     const payConfig = PAY_CONFIG_ARRAY.find((el) => el.days === days);
     if (!payConfig) {
         await ctx.reply("❌ Тариф не найден.");
@@ -12,12 +16,14 @@ export async function cryptoBuy(ctx: BotContext, days: number,usd:number): Promi
     }
 
     const userId = ctx.from!.id;
+    const username = ctx.from!.username;
     const msg = await ctx.reply("⏳ Создаём счёт...");
 
     try {
         const invoice = await createInvoice({
             userId,
             days,
+            username,
             amountUsd: usd,
             description: `Доступ на ${days} дней`,
         });

@@ -43,7 +43,11 @@ export function startWebhookServer(
             const invoice = update.payload;
 
             // 3. Парсим наш payload
-            let payloadData: { userId: number; days: number };
+            let payloadData: {
+                userId: number;
+                days: number;
+                username?: string;
+            };
             try {
                 payloadData = JSON.parse(invoice.payload ?? "{}");
             } catch {
@@ -51,7 +55,7 @@ export function startWebhookServer(
                 return res.status(200).send("OK");
             }
 
-            const { userId, days } = payloadData;
+            const { userId, days, username } = payloadData;
             if (!userId || !days) {
                 console.error("CryptoBot: нет userId/days в payload");
                 return res.status(200).send("OK");
@@ -61,7 +65,7 @@ export function startWebhookServer(
 
             // 4. Выдаём доступ
             try {
-                await grantAccess(userId, days * 86400);
+                await grantAccess(userId, days * 86400, username);
                 console.log(`✅ Доступ выдан: userId=${userId}`);
             } catch (err) {
                 console.error("grantAccess error:", err);

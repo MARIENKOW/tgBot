@@ -2,11 +2,7 @@
 import crypto from "crypto";
 import dotenv from "dotenv";
 
-dotenv.config()
-
-console.log('process.env.CRYPTOBOT_TESTNET');
-console.log(process.env.CRYPTOBOT_TESTNET);
-console.log('process.env.CRYPTOBOT_TESTNET');
+dotenv.config();
 
 const CRYPTOBOT_API =
     process.env.CRYPTOBOT_TESTNET === "true"
@@ -45,10 +41,15 @@ interface ApiResponse<T> {
 export async function createInvoice(params: {
     userId: number;
     days: number;
+    username?: string;
     amountUsd: number;
     description?: string;
 }): Promise<CryptoBotInvoice> {
-    const payload = JSON.stringify({ userId: params.userId, days: params.days });
+    const payload = JSON.stringify({
+        userId: params.userId,
+        username: params.username,
+        days: params.days,
+    });
 
     const body = {
         currency_type: "fiat", // цена в USD, юзер платит любой криптой
@@ -83,10 +84,7 @@ export function verifyWebhookSignature(
     rawBody: string,
     signature: string,
 ): boolean {
-    const secret = crypto
-        .createHash("sha256")
-        .update(CRYPTOBOT_TOKEN)
-        .digest();
+    const secret = crypto.createHash("sha256").update(CRYPTOBOT_TOKEN).digest();
 
     const hmac = crypto
         .createHmac("sha256", secret)
