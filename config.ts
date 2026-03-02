@@ -12,7 +12,6 @@ export const PAY_CONFIG_ARRAY: PayConfig[] = [
     {
         days: 1,
         label: "1 день",
-        priceUsd: 1,
         payments: [
             {
                 label: "1 ⭐ Stars",
@@ -22,14 +21,13 @@ export const PAY_CONFIG_ARRAY: PayConfig[] = [
             {
                 label: "💎 CryptoBot — $1",
                 command: "crypto",
-                callback: (ctx: BotContext) => cryptoBuy(ctx, 1),
+                callback: (ctx: BotContext) => cryptoBuy(ctx, 1, 1),
             },
         ],
     },
     {
         days: 180,
         label: "6 месяцев",
-        priceUsd: 15,
         payments: [
             {
                 label: "2500 ⭐ Stars",
@@ -39,7 +37,7 @@ export const PAY_CONFIG_ARRAY: PayConfig[] = [
             {
                 label: "💎 CryptoBot — $15",
                 command: "crypto",
-                callback: (ctx: BotContext) => cryptoBuy(ctx, 180),
+                callback: (ctx: BotContext) => cryptoBuy(ctx, 180, 15),
             },
         ],
     },
