@@ -15,7 +15,7 @@ export function startWebhookServer(
     const app = express();
 
     app.get("/", async (req, res) => {
-        return res.json("not allowed");
+        return res.redirect('https://t.me/private_sexin_bot');
     });
     app.post(
         "/",
