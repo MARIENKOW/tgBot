@@ -2,6 +2,9 @@
 import express from "express";
 import { verifyWebhookSignature, CryptoBotWebhookUpdate } from "./cryptobot";
 
+console.log(process.env.CRYPTOBOT_ENDPOINT);
+console.log("CRYPTOBOT_ENDPOINT");
+
 type GrantAccessFn = (
     userId: number,
     period: number,
