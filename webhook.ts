@@ -15,7 +15,7 @@ export function startWebhookServer(
     const app = express();
 
     app.get("/", async (req, res) => {
-        return res.redirect('https://t.me/private_sexin_bot');
+        return res.redirect(process.env.BOT_LINK || "");
     });
     app.post(
         "/",
@@ -69,9 +69,11 @@ export function startWebhookServer(
                 return res.status(200).send("OK");
             }
 
-            invoice.invoice_id
+            invoice.invoice_id;
 
-            console.log(`💎 CryptoBot оплата: userId=${userId}, days=${days}, invoice_id=${invoice.invoice_id}`);
+            console.log(
+                `💎 CryptoBot оплата: userId=${userId}, days=${days}, invoice_id=${invoice.invoice_id}`,
+            );
 
             // 4. Выдаём доступ
             try {
