@@ -18,7 +18,7 @@ export function startWebhookServer(
         return res.redirect(process.env.BOT_LINK || "");
     });
     app.post(
-        "/",
+        process.env.CRYPTOBOT_ENDPOINT || "/",
         express.raw({ type: "application/json" }),
         async (req, res) => {
             const signature = req.headers["crypto-pay-api-signature"] as string;
