@@ -28,7 +28,7 @@ export const PAY_CONFIG_ARRAY: PayConfig[] = [
     },
     {
         days: 180,
-        label: keys.price.oneDay,
+        label: keys.price.sixMonth,
         payments: [
             {
                 label: "2500 ⭐ Stars",
