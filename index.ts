@@ -15,6 +15,60 @@ import { isCommandType } from "./helpers";
 import { PAY_CONFIG_ARRAY } from "./config";
 import { startWebhookServer } from "./webhook";
 
+const locale = "ru-RU";
+const timezone = "Europe/Kiev";
+
+const keys = {
+    tariff: {
+        errors: {
+            notFound: "❌ Такого тарифа больше нет! /start",
+        },
+        btn: "Тариф",
+        chooseTariff: (value: any) =>
+            `🔐 <b>${value}</b>\n\n` + "Выбери способ оплаты:",
+    },
+    status: {
+        errors: {
+            notFound: "⛔ Нет активного доступа. Купи тариф! /start",
+        },
+        btn: "Статус",
+        show: ({ until, daysLeft }: { until: any; daysLeft: any }) =>
+            `✅ Доступ активен до:\n${until}\n\n` +
+            `📅 Осталось: ${daysLeft} дней`,
+    },
+    price: {
+        main:
+            "🔐 <b>Приватный канал — платный доступ</b>\n\n" + "Выбери тариф:",
+    },
+    access: {
+        success: ({
+            statusMessage,
+            link,
+            untilDate,
+        }: {
+            statusMessage: any;
+            link: any;
+            untilDate: any;
+        }) =>
+            `${statusMessage}\n\n` +
+            `🔗 <b>Перейди для входа в канал:</b>\n\n` +
+            `${link}\n\n` +
+            `📅 Действует до: ${untilDate}\n` +
+            `(Ссылка одноразовая, только для тебя)`,
+        active: "✅ Доступ активирован!",
+        extended: "✅ Доступ продлён!",
+        errors: {
+            link: `✅ Доступ записан. Обратитесь к админу за ссылкой.\n\n ${process.env.BOT_ADMIN}`,
+            expired:
+                "⛔ <b>Срок доступа истёк!</b>\n\n💳 Купи новый тариф: /price",
+        },
+    },
+    menu: {
+        start: "Запуск бота",
+        name: "меню",
+    },
+};
+
 dotenv.config();
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -41,20 +95,16 @@ bot.use(menu);
 
 async function tariffByDay(ctx: BotContext, days: number) {
     const payConfig = PAY_CONFIG_ARRAY.find((el) => el.days === days);
-    if (!payConfig)
-        return await ctx.reply("❌ Такого тарифа больше нет! /start");
+    if (!payConfig) return await ctx.reply(keys.tariff.errors.notFound);
 
     const keyboard = payConfig.payments.reduce((kb, el) => {
         return kb.text(el.label, `buy:${days}:${el.command}`).row();
     }, new InlineKeyboard());
 
-    await ctx.reply(
-        `🔐 <b>${payConfig.label}</b>\n\n` + "Выбери способ оплаты:",
-        {
-            parse_mode: "HTML",
-            reply_markup: keyboard,
-        },
-    );
+    await ctx.reply(keys.tariff.chooseTariff(payConfig.label), {
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+    });
 }
 async function showStatus(ctx: BotContext) {
     // ← BotContext
@@ -66,38 +116,36 @@ async function showStatus(ctx: BotContext) {
     });
 
     if (!access || access.accessUntil < now) {
-        return ctx.reply("⛔ Нет активного доступа. Купи тариф! /start");
+        return ctx.reply(keys.status.errors.notFound);
     }
 
-    const until = new Date(access.accessUntil * 1000).toLocaleString("ru-RU");
+    const until = new Date(access.accessUntil * 1000).toLocaleString(locale);
     const daysLeft = Math.floor(Number(access.accessUntil - now) / 86400);
 
-    ctx.reply(
-        `✅ Доступ активен до:\n${until}\n\n` + `📅 Осталось: ${daysLeft} дней`,
-    );
+    ctx.reply(keys.status.show({ until, daysLeft }));
 }
 async function start(ctx: BotContext) {
     await price(ctx);
-    const keyboard = new Keyboard().text("Тариф").text("Статус").resized();
+    const keyboard = new Keyboard()
+        .text(keys.tariff.btn)
+        .text(keys.status.btn)
+        .resized();
 
-    await ctx.reply("меню", {
+    await ctx.reply(keys.menu.name, {
         reply_markup: keyboard,
     });
 
     await bot.api.setMyCommands([
-        { command: "start", description: "Запуск бота" },
-        { command: "price", description: "Тариф" },
-        { command: "status", description: "Статус" },
+        { command: "start", description: keys.menu.start },
+        { command: "price", description: keys.tariff.btn },
+        { command: "status", description: keys.status.btn },
     ]);
 }
 async function price(ctx: BotContext) {
-    await ctx.reply(
-        "🔐 <b>Приватный канал — платный доступ</b>\n\n" + "Выбери тариф:",
-        {
-            parse_mode: "HTML",
-            reply_markup: menu,
-        },
-    );
+    await ctx.reply(keys.price.main, {
+        parse_mode: "HTML",
+        reply_markup: menu,
+    });
 }
 
 async function grantAccess(userId: number, period: number, username?: string) {
@@ -123,11 +171,9 @@ async function grantAccess(userId: number, period: number, username?: string) {
 
     const expire_date = now + 3600;
     const untilDate = new Date(Number(accessUntil) * 1000).toLocaleString(
-        "ru-RU",
+        locale,
     );
-    const statusMessage = isRenewal
-        ? "✅ Доступ продлён!"
-        : "✅ Доступ активирован!";
+    const statusMessage = isRenewal ? keys.access.extended : keys.access.active;
 
     try {
         const link = await bot.api.createChatInviteLink(
@@ -142,19 +188,17 @@ async function grantAccess(userId: number, period: number, username?: string) {
 
         await bot.api.sendMessage(
             userId,
-            `${statusMessage}\n\n` +
-                `🔗 <b>Перейди для входа в канал:</b>\n\n` +
-                `${link.invite_link}\n\n` +
-                `📅 Действует до: ${untilDate}\n` +
-                `(Ссылка одноразовая, только для тебя)`,
+
+            keys.access.success({
+                statusMessage,
+                link: link.invite_link,
+                untilDate,
+            }),
             { parse_mode: "HTML" },
         );
     } catch (err) {
         console.error("Ошибка создания ссылки:", err);
-        await bot.api.sendMessage(
-            userId,
-            "✅ Доступ записан. Обратитесь к админу за ссылкой.",
-        );
+        await bot.api.sendMessage(userId, keys.access.errors.link);
     }
 }
 
@@ -195,8 +239,8 @@ bot.on("callback_query:data", async (ctx, next) => {
 bot.command("start", start);
 bot.command("price", price);
 bot.command("status", showStatus);
-bot.hears("Тариф", price);
-bot.hears("Статус", showStatus);
+bot.hears(keys.tariff.btn, price);
+bot.hears(keys.status.btn, showStatus);
 // Cron (без изменений)
 cron.schedule(
     "1 * * * * *",
@@ -239,7 +283,7 @@ cron.schedule(
 
                     await bot.api.sendMessage(
                         Number(acc.userId),
-                        "⛔ <b>Срок доступа истёк!</b>\n\n💳 Купи новый тариф: /price",
+                        keys.access.errors.expired,
                         { parse_mode: "HTML" },
                     );
                 }
@@ -253,7 +297,7 @@ cron.schedule(
         console.log(`✅ Кик обработан: ${kicked}/${expired.length} юзеров`);
     },
     {
-        timezone: "Europe/Kiev",
+        timezone: timezone,
     },
 );
 // Обработка ошибок
