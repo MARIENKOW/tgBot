@@ -4,7 +4,7 @@ import { cryptoBuy } from "./payment_handlers/cryptoBuy";
 import { PayConfig } from "./types";
 import { BotContext } from "./types/session";
 import dotenv from "dotenv";
-import { keys } from ".";
+import { keys } from "./keys";
 dotenv.config();
 
 export const COMMAND_TYPES = ["stars", "crypto"] as const;
@@ -28,7 +28,7 @@ export const PAY_CONFIG_ARRAY: PayConfig[] = [
     },
     {
         days: 180,
-        label:keys.price.oneDay,
+        label: keys.price.oneDay,
         payments: [
             {
                 label: "2500 ⭐ Stars",
