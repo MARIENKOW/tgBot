@@ -15,30 +15,30 @@ import { isCommandType } from "./helpers";
 import { PAY_CONFIG_ARRAY } from "./config";
 import { startWebhookServer } from "./webhook";
 
-const locale = "ru-RU";
-const timezone = "Europe/Kiev";
+const locale = "en-US";
+const timezone = "Europe/Kyiv";
 
 const keys = {
     tariff: {
         errors: {
-            notFound: "❌ Такого тарифа больше нет! /start",
+            notFound: "❌ This tariff no longer exists! /start",
         },
-        btn: "Тариф",
+        btn: "Tariff",
         chooseTariff: (value: any) =>
-            `🔐 <b>${value}</b>\n\n` + "Выбери способ оплаты:",
+            `🔐 <b>${value}</b>\n\n` + "Choose a payment method:",
     },
     status: {
         errors: {
-            notFound: "⛔ Нет активного доступа. Купи тариф! /start",
+            notFound: "⛔ No active access. Buy a tariff! /start",
         },
-        btn: "Статус",
+        btn: "Status",
         show: ({ until, daysLeft }: { until: any; daysLeft: any }) =>
-            `✅ Доступ активен до:\n${until}\n\n` +
-            `📅 Осталось: ${daysLeft} дней`,
+            `✅ Access active until:\n${until}\n\n` +
+            `📅 Remaining: ${daysLeft} days`,
     },
     price: {
         main:
-            "🔐 <b>Приватный канал — платный доступ</b>\n\n" + "Выбери тариф:",
+            "🔐 <b>Private channel — paid access</b>\n\n" + "Choose a tariff:",
     },
     access: {
         success: ({
@@ -51,21 +51,21 @@ const keys = {
             untilDate: any;
         }) =>
             `${statusMessage}\n\n` +
-            `🔗 <b>Перейди для входа в канал:</b>\n\n` +
+            `🔗 <b>Go to the channel using the link:</b>\n\n` +
             `${link}\n\n` +
-            `📅 Действует до: ${untilDate}\n` +
-            `(Ссылка одноразовая, только для тебя)`,
-        active: "✅ Доступ активирован!",
-        extended: "✅ Доступ продлён!",
+            `📅 Valid until: ${untilDate}\n` +
+            `(The link is one-time use, only for you)`,
+        active: "✅ Access activated!",
+        extended: "✅ Access extended!",
         errors: {
-            link: `✅ Доступ записан. Обратитесь к админу за ссылкой.\n\n ${process.env.BOT_ADMIN}`,
+            link: `✅ Access recorded. Contact the admin for the link.\n\n ${process.env.BOT_ADMIN}`,
             expired:
-                "⛔ <b>Срок доступа истёк!</b>\n\n💳 Купи новый тариф: /price",
+                "⛔ <b>Access has expired!</b>\n\n💳 Buy a new tariff: /price",
         },
     },
     menu: {
-        start: "Запуск бота",
-        name: "меню",
+        start: "Start bot",
+        name: "menu",
     },
 };
 
