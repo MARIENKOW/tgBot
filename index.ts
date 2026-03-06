@@ -18,7 +18,7 @@ import { startWebhookServer } from "./webhook";
 const locale = "en-US";
 const timezone = "Europe/Kyiv";
 
-const keys = {
+export const keys = {
     tariff: {
         errors: {
             notFound: "❌ This tariff no longer exists! /start",
@@ -37,6 +37,8 @@ const keys = {
             `📅 Remaining: ${daysLeft} days`,
     },
     price: {
+        oneDay: "1 day",
+        sixMonth: "6 months",
         main:
             "🔐 <b>Private channel — paid access</b>\n\n" + "Choose a tariff:",
     },
