@@ -20,28 +20,28 @@ export const keys = {
     },
     stars: {
         invoice: {
-            title: (days: number) => `Доступ в канал на ${days} дней`,
+            title: (days: number) => `Channel access for ${days} days`,
             subtitle: ({ days, stars }: { days: number; stars: number }) =>
-                `Получи приватный доступ на ${days} дней за ${stars} ⭐`,
-            label: (days: number) => `${days} дней`,
+                `Get private access for ${days} days for ${stars} ⭐`,
+            label: (days: number) => `${days} days`,
         },
     },
     crypto: {
         invoice: {
             error: {
-                notfound: "❌ Тариф не найден.",
-                catch: "❌ Ошибка создания счёта. Попробуй позже.",
+                notfound: "❌ Plan not found.",
+                catch: "❌ Failed to create invoice. Please try again later.",
             },
-            pay: "💳 Оплатить в CryptoBot",
-            description: (days: number) => `Доступ на ${days} дней`,
+            pay: "💳 Pay via CryptoBot",
+            description: (days: number) => `Access for ${days} days`,
             message: ({ label, usd }: { usd: number; label: string }) =>
-                `💎 <b>Оплата через CryptoBot</b>\n\n` +
-                `📦 Тариф: ${label}\n` +
-                `💵 Сумма: $${usd}\n\n` +
-                `👆 Нажми кнопку и оплати.\n` +
-                `✅ Доступ откроется <b>автоматически</b> после оплаты.\n` +
-                `⏰ Счёт действует 1 час.`,
-            promise: "⏳ Создаём счёт...",
+                `💎 <b>Payment via CryptoBot</b>\n\n` +
+                `📦 Plan: ${label}\n` +
+                `💵 Amount: $${usd}\n\n` +
+                `👆 Click the button and complete the payment.\n` +
+                `✅ Access will be granted <b>automatically</b> after payment.\n` +
+                `⏰ The invoice is valid for 1 hour.`,
+            promise: "⏳ Creating invoice...",
         },
     },
     price: {
