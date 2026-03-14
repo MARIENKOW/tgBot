@@ -3,6 +3,7 @@ import { InlineKeyboard } from "grammy";
 import { BotContext } from "../types/session";
 import { PAY_CONFIG_ARRAY } from "../config";
 import { createInvoice } from "../cryptobot";
+import { keys } from "../keys";
 
 export async function cryptoBuy(
     ctx: BotContext,
@@ -11,13 +12,13 @@ export async function cryptoBuy(
 ): Promise<void> {
     const payConfig = PAY_CONFIG_ARRAY.find((el) => el.days === days);
     if (!payConfig) {
-        await ctx.reply("❌ Тариф не найден.");
+        await ctx.reply(keys.crypto.invoice.error.notfound);
         return;
     }
 
     const userId = ctx.from!.id;
     const username = ctx.from!.username;
-    const msg = await ctx.reply("⏳ Создаём счёт...");
+    const msg = await ctx.reply(keys.crypto.invoice.promise);
 
     try {
         const invoice = await createInvoice({
@@ -25,23 +26,18 @@ export async function cryptoBuy(
             days,
             username,
             amountUsd: usd,
-            description: `Доступ на ${days} дней`,
+            description: keys.crypto.invoice.description(days),
         });
 
         const keyboard = new InlineKeyboard().url(
-            "💳 Оплатить в CryptoBot",
+            keys.crypto.invoice.pay,
             invoice.pay_url,
         );
 
         await ctx.api.editMessageText(
             ctx.chat!.id,
             msg.message_id,
-            `💎 <b>Оплата через CryptoBot</b>\n\n` +
-                `📦 Тариф: ${payConfig.label}\n` +
-                `💵 Сумма: $${usd}\n\n` +
-                `👆 Нажми кнопку и оплати.\n` +
-                `✅ Доступ откроется <b>автоматически</b> после оплаты.\n` +
-                `⏰ Счёт действует 1 час.`,
+            keys.crypto.invoice.message({ label: payConfig.label, usd }),
             { parse_mode: "HTML", reply_markup: keyboard },
         );
     } catch (err) {
@@ -49,7 +45,7 @@ export async function cryptoBuy(
         await ctx.api.editMessageText(
             ctx.chat!.id,
             msg.message_id,
-            "❌ Ошибка создания счёта. Попробуй позже.",
+            keys.crypto.invoice.error.catch,
         );
     }
 }

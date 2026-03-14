@@ -1,3 +1,5 @@
+import { subtle } from "node:crypto";
+
 export const keys = {
     tariff: {
         errors: {
@@ -15,6 +17,32 @@ export const keys = {
         show: ({ until, daysLeft }: { until: any; daysLeft: any }) =>
             `✅ Access active until:\n${until}\n\n` +
             `📅 Remaining: ${daysLeft} days`,
+    },
+    stars: {
+        invoice: {
+            title: (days: number) => `Доступ в канал на ${days} дней`,
+            subtitle: ({ days, stars }: { days: number; stars: number }) =>
+                `Получи приватный доступ на ${days} дней за ${stars} ⭐`,
+            label: (days: number) => `${days} дней`,
+        },
+    },
+    crypto: {
+        invoice: {
+            error: {
+                notfound: "❌ Тариф не найден.",
+                catch: "❌ Ошибка создания счёта. Попробуй позже.",
+            },
+            pay: "💳 Оплатить в CryptoBot",
+            description: (days: number) => `Доступ на ${days} дней`,
+            message: ({ label, usd }: { usd: number; label: string }) =>
+                `💎 <b>Оплата через CryptoBot</b>\n\n` +
+                `📦 Тариф: ${label}\n` +
+                `💵 Сумма: $${usd}\n\n` +
+                `👆 Нажми кнопку и оплати.\n` +
+                `✅ Доступ откроется <b>автоматически</b> после оплаты.\n` +
+                `⏰ Счёт действует 1 час.`,
+            promise: "⏳ Создаём счёт...",
+        },
     },
     price: {
         oneDay: "1 day",

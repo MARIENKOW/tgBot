@@ -1,3 +1,4 @@
+import { keys } from "../keys";
 import { BotContext } from "../types/session";
 
 export async function starBuy(ctx: BotContext, days: number, stars: number) {
@@ -11,10 +12,10 @@ export async function starBuy(ctx: BotContext, days: number, stars: number) {
 
     await ctx.api.sendInvoice(
         ctx.chat!.id,
-        `Доступ в канал на ${days} дней`,
-        `Получи приватный доступ на ${days} дней за ${stars} ⭐`,
+        keys.stars.invoice.title(days),
+        keys.stars.invoice.subtitle({ days, stars }),
         payload,
         "XTR",
-        [{ label: `${days} дней`, amount: stars }],
+        [{ label: keys.stars.invoice.label(days), amount: stars }],
     );
 }
